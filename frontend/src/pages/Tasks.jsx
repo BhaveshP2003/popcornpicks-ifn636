@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '../axiosConfig';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Tasks = () => {
   const { user } = useAuth();
-  const [Tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
@@ -21,7 +21,9 @@ const Tasks = () => {
       }
     };
 
-    fetchTasks();
+    if (user) {
+      fetchTasks();
+    }
   }, [user]);
 
   return (
@@ -32,7 +34,11 @@ const Tasks = () => {
         editingTask={editingTask}
         setEditingTask={setEditingTask}
       />
-      <TaskList tasks={tasks} setTasks={setTasks} setEditingTask={setEditingTask} />
+      <TaskList
+        tasks={tasks}
+        setTasks={setTasks}
+        setEditingTask={setEditingTask}
+      />
     </div>
   );
 };
