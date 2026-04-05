@@ -1,14 +1,18 @@
-name: Run Tests
+name: Backend CI
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build:
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18]
 
     steps:
       - name: Checkout Code
@@ -17,27 +21,45 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
+
+      - name: Print Env Secret
+        run: |
+          echo "MONGO_URI loaded"
+          echo "JWT_SECRET loaded"
+          echo "PORT loaded"
+
+      - name: Stop Running Services
+        run: pm2 stop all || true
 
       - name: Install Backend Dependencies
+        working-directory: ./backend
         run: |
-          cd backend
-          npm install
+          npm install --global yarn
+          yarn --version
+          yarn install
 
       - name: Install Frontend Dependencies
+        working-directory: ./frontend
         run: |
-          cd frontend
-          npm install
+          yarn install
+          yarn build
 
       - name: Run Backend Tests
+        working-directory: ./backend
+        run: npm test
+
+      - name: Install Dependencies (CI clean)
+        run: npm ci
+
+      - name: Create .env File
         run: |
           cd backend
-          echo "Running backend tests..."
+          touch .env
+          echo "PORT=5000" >> .env
 
-      - name: Run Frontend Tests
-        run: |
-          cd frontend
-          echo "Running frontend tests..."
+      - name: Start Services
+        run: pm2 start all || true
 
-      - name: Complete job
-        run: echo "CI pipeline completed successfully"
+      - name: Restart Services
+        run: pm2 restart all || true

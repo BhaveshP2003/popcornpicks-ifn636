@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Tasks = () => {
   const { user } = useAuth();
-  const [tasks, setTasks] = useState([]);
+  const [Tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const Tasks = () => {
         });
         setTasks(response.data);
       } catch (error) {
-        alert('Failed to fetch tasks.');
+        alert('Failed to fetch reviews.');
       }
     };
 
